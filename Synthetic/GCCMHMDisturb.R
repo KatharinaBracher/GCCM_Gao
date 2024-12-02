@@ -1,3 +1,4 @@
+
 setwd("E:\\Study\\R\\spatial-causality")
 
 
@@ -72,20 +73,20 @@ for(h in seq(1:length(HMs)))
     
     y<-as.vector(yMatrix)
     
-    for(d in disRange)
+    for(d in 1:length(disRange))
     {
      
       disturb<-runif(length(y))
-      y<-y+disturb*disRange[d]*y
-      yMatrixM<-matrix(y,nrow = totalRow, ncol = totalCol)
+      yD<-y+disturb*disRange[d]*y
+      yMatrixD<-matrix(yD,nrow = totalRow, ncol = totalCol)
       
       
       pred<-merge(predRows,predCols)
       
       startTime<-Sys.time()
       
-      x_xmap_y <- GCCM(xMatrix, yMatrix, lib_sizes, lib, pred, E,cores=4)
-      y_xmap_x <- GCCM(yMatrix,xMatrix, lib_sizes, lib, pred, E,cores=4)
+      x_xmap_y <- GCCM(xMatrix, yMatrixD, lib_sizes, lib, pred, E,cores=8)
+      y_xmap_x <- GCCM(yMatrixD,xMatrix, lib_sizes, lib, pred, E,cores=8)
       
       endTime<-Sys.time()
       
@@ -101,14 +102,8 @@ for(h in seq(1:length(HMs)))
       
       x_xmap_y_Sig<- significance(x_xmap_y_means,nrow(pred))
       y_xmap_x_Sig<- significance(y_xmap_x_means,nrow(pred))
-
-      x_xmap_y_interval<- confidence(x_xmap_y_means,nrow(pred))
-     colnames(x_xmap_y_interval)<-c("x_xmap_y_upper","x_xmap_y_lower")
-  
-     y_xmap_x_interval<- confidence(y_xmap_x_means,nrow(pred))
-     colnames(y_xmap_x_interval)<-c("y_xmap_x_upper","y_xmap_x_lower")
       
-      results<-data.frame(lib_sizes,x_xmap_y_means,y_xmap_x_means,x_xmap_y_Sig,y_xmap_x_Sig,x_xmap_y_interval,y_xmap_x_interval)
+      results<-data.frame(lib_sizes,x_xmap_y_means,y_xmap_x_means,x_xmap_y_Sig,y_xmap_x_Sig)
       
       write.csv(results,file=paste("results/HMSim/",disRange[d],xName,"_",yName,".csv",sep=""))
       
